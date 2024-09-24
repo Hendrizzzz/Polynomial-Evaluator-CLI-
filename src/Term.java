@@ -1,6 +1,3 @@
-import java.util.Objects;
-
-
 /**
  * An Immutable Term designed for the PolynomialEvaluator program. This term doesn't support multivariable.
  */
@@ -41,15 +38,31 @@ public class Term implements Comparable<Term>{
     }
 
 
-    // Getter methods
+    /**
+     * Gets coefficient.
+     *
+     * @return the coefficient
+     */
     public double getCoefficient() {
         return coefficient;
     }
 
+
+    /**
+     * Gets literal.
+     *
+     * @return the literal
+     */
     public char getLiteral() {
         return literal;
     }
 
+
+    /**
+     * Gets exponent.
+     *
+     * @return the exponent
+     */
     public int getExponent() {
         return exponent;
     }
@@ -148,30 +161,32 @@ public class Term implements Comparable<Term>{
 
     @Override
     public String toString() {
-        if (coefficient == 0)
-            return "0";
+        String literalPart = switch (exponent) {
+            case 0 -> "";
+            case 1 -> String.valueOf(literal);
+            case -1 -> "-" + literal;
+            default -> literal + "^" + exponent;
+        };
 
-        String stringCoefficient = (this.coefficient % 1 == 0)
-                ? String.valueOf((int) this.coefficient) // Integer case
-                : String.valueOf(this.coefficient);      // Non-integer case
+        if (coefficientIsInteger(coefficient))
+            return formattedTerm(coefficient, literalPart);
+        else
+            return coefficient + literalPart;
+    }
 
-        if (exponent == 0) {
-            if (this.coefficient == 1)
-                return "1";
-            else if (coefficient == -1)
-                return "-1";
+    private String formattedTerm(double coefficient, String literalPart) {
+        switch ((int) coefficient) {
+            case 0 -> { return "0"; }
+            case 1 -> {
+                if (exponent != 0) return literalPart; }
+            case -1 -> {
+                if (exponent != 0) return "-" + literalPart; }
         }
+        return (int) coefficient + literalPart;
+    }
 
-        if (this.coefficient == 1)
-            stringCoefficient = "";
-        else if (this.coefficient == -1)
-            stringCoefficient = "-";
-
-        if (exponent < 0)
-            return (stringCoefficient.isEmpty() ? 1 : stringCoefficient) + "/" + literal + "^" + -exponent; // bring the exponent down
-        else if (exponent == 1)
-            return stringCoefficient + literal;
-        return stringCoefficient + literal + "^" + exponent;
+    private boolean coefficientIsInteger(double coefficient) {
+        return coefficient % 1 == 0;
     }
 
 
