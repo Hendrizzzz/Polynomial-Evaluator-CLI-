@@ -102,6 +102,8 @@ public class Term implements Comparable<Term>{
     }
 
 
+    // Method to check if this Term and the other Term has the same exponent
+    // Returns false if they have the same exponent, otherwise, true
     private boolean notTheSameExponent(Term other) {
         // Nothing to simplify, cannot add or subtract two terms with different exponents
         return this.exponent != other.exponent;
@@ -136,6 +138,14 @@ public class Term implements Comparable<Term>{
     }
 
 
+    /**
+     * Compares this Term object to the specified object for equality.
+     * Two Term objects are considered equal if they have the same coefficient,
+     * literal, and exponent values.
+     *
+     * @param o the object to be compared for equality
+     * @return true if this Term is equal to the specified object, false otherwise
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -148,6 +158,12 @@ public class Term implements Comparable<Term>{
         return exponent == term.exponent;
     }
 
+
+    /**
+     * Generates a hash code for the Term object based on its properties.
+     *
+     * @return an integer hash code for this Term.
+     */
     @Override
     public int hashCode() {
         int result;
@@ -159,6 +175,12 @@ public class Term implements Comparable<Term>{
         return result;
     }
 
+
+    /**
+     * Returns a string representation of the Term object.
+     *
+     * @return a formatted string that represents the term.
+     */
     @Override
     public String toString() {
         String literalPart = switch (exponent) {
@@ -174,6 +196,14 @@ public class Term implements Comparable<Term>{
             return coefficient + literalPart;
     }
 
+
+    /**
+     * Formats the term based on its coefficient and literal part.
+     *
+     * @param coefficient the coefficient of the term
+     * @param literalPart the string representation of the literal part
+     * @return a formatted string representation of the term
+     */
     private String formattedTerm(double coefficient, String literalPart) {
         switch ((int) coefficient) {
             case 0 -> { return "0"; }
@@ -185,14 +215,26 @@ public class Term implements Comparable<Term>{
         return (int) coefficient + literalPart;
     }
 
+
+    /**
+     * Checks if the coefficient is an integer.
+     *
+     * @param coefficient the coefficient to check
+     * @return true if the coefficient is an integer, false otherwise
+     */
     private boolean coefficientIsInteger(double coefficient) {
         return coefficient % 1 == 0;
     }
 
 
     /**
-     * @param o the object to be compared.
-     * @return the difference in numerically
+     * Compares this Term object with another Term for sorting purposes.
+     * It sorts Terms primarily by their exponent in descending order
+     * and secondarily by their coefficients in descending order.
+     *
+     * @param o the Term to be compared
+     * @return a negative integer, zero, or a positive integer as this Term
+     *         is less than, equal to, or greater than the specified Term
      */
     @Override
     public int compareTo(Term o) {
@@ -208,6 +250,12 @@ public class Term implements Comparable<Term>{
 
     }
 
+    /**
+     * Evaluates the term for a given value.
+     *
+     * @param value the value of the literal to evaluate the term
+     * @return the result of the term evaluated at the given value
+     */
     public double evaluate(double value) {
         return coefficient * (Math.pow(value, exponent));
     }

@@ -5,6 +5,11 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Date;
 
+/**
+ * The {@code PolynomialEvaluator} class allows users to evaluate polynomials
+ * and perform basic operations like addition, subtraction, multiplication,
+ * and division.
+ */
 public class PolynomialEvaluator {
 
     private void showMenu() {
@@ -27,6 +32,11 @@ public class PolynomialEvaluator {
             Enter your choice (1-7): \s""" + Constants.RESET);
     }
 
+    /**
+     * Executes the main operations of the polynomial evaluator.
+     * It reads past data, runs polynomial operations, and saves data
+     * from the current execution.
+     */
     private void run() {
         // Read past data
         Logger.ReadData();
@@ -40,6 +50,12 @@ public class PolynomialEvaluator {
         Logger.saveData();
     }
 
+
+    /**
+     * Runs polynomial operations based on user input.
+     *
+     * @param reader a BufferedReader to read user input
+     */
     private void runPolynomialOperations(BufferedReader reader) {
         boolean userWantsMore = true;
 
@@ -66,6 +82,11 @@ public class PolynomialEvaluator {
     }
 
 
+    /**
+     * Evaluates a polynomial based on user input.
+     *
+     * @param reader a BufferedReader to read user input
+     */
     private void evaluatePolynomial(BufferedReader reader) {
         // Header
         System.out.println(Constants.GREEN + "[OPTION 1] : EVALUATE a Polynomial." + Constants.RESET);
@@ -82,6 +103,14 @@ public class PolynomialEvaluator {
     }
 
 
+    /**
+     * Performs the specified polynomial operation based on user input.
+     *
+     * @param optionNumber the option number for the operation
+     * @param process a string representing the operation process
+     * @param operation a string representing the type of operation
+     * @param reader a BufferedReader to read user input
+     */
     private void performOperation(int optionNumber, String process, String operation, BufferedReader reader) {
         // Header
         System.out.println(Constants.GREEN +
@@ -99,6 +128,14 @@ public class PolynomialEvaluator {
         displayResults(polynomial1, polynomial2, result, operation);
     }
 
+    /**
+     * Calculates the result of performing the specified operation on two polynomials.
+     *
+     * @param polynomial1 the first polynomial
+     * @param polynomial2 the second polynomial
+     * @param operation a string representing the operation to perform
+     * @return the resulting polynomial after performing the operation
+     */
     private Polynomial getResult(Polynomial polynomial1, Polynomial polynomial2, String operation) {
         return switch (operation) {
             case "ADDITION" -> polynomial1.addTo(polynomial2);
@@ -109,6 +146,12 @@ public class PolynomialEvaluator {
     }
 
 
+    /**
+     * Constructs a polynomial based on user input.
+     *
+     * @param reader a BufferedReader to read user input
+     * @return the constructed Polynomial
+     */
     private Polynomial constructPolynomial(BufferedReader reader) {
         while (true) {
             System.out.print("Would you like to enter the polynomial directly (1) or with assistance (2)? : ");
@@ -128,7 +171,13 @@ public class PolynomialEvaluator {
         }
     }
 
-
+    /**
+     * Constructs a polynomial directly from user input. (i.e -x -5x^2 + 3)
+     *
+     * @param reader a BufferedReader to read user input
+     * @return the constructed Polynomial
+     * @throws IOException if an I/O error occurs during input
+     */
     private Polynomial constructPolynomialDirectly(BufferedReader reader) throws IOException {
         // Manual polynomial entry
         System.out.print("Please enter the polynomial (e.g., 5x^2 + 3x + 1): ");
@@ -139,7 +188,13 @@ public class PolynomialEvaluator {
     }
 
 
-    // Method for constructing polynomial with user assistance
+    /**
+     * Constructs a polynomial with assistance.
+     *
+     * @param reader a BufferedReader to read user input
+     * @return the constructed Polynomial
+     * @throws IOException if an I/O error occurs during input
+     */
     private Polynomial constructPolynomialWithAssistance(BufferedReader reader) throws IOException {
         System.out.print("How many terms are there in the polynomial? ");
         int termCount = readInteger(1, 100, reader);
@@ -159,7 +214,13 @@ public class PolynomialEvaluator {
     }
 
 
-
+    /**
+     * Constructs a term given the literal coefficient and user input.
+     *
+     * @param literal the literal coefficient (e.g., x)
+     * @param reader a BufferedReader to read user input
+     * @return the constructed Term
+     */
     private Term constructTermGivenLiteral(char literal, BufferedReader reader) {
         System.out.print("Coefficient: ");
         double coefficient = readFloatingPointValue(reader);
@@ -173,6 +234,12 @@ public class PolynomialEvaluator {
     }
 
 
+    /**
+     * Converts a string representation of a polynomial into a Polynomial object.
+     *
+     * @param polynomialString the string representation of the polynomial
+     * @return the constructed Polynomial
+     */
     private Polynomial convertStringToPolynomial(String polynomialString) {
         if (polynomialString == null || polynomialString.isBlank())
             return new Polynomial(); // Return empty polynomial
@@ -201,7 +268,13 @@ public class PolynomialEvaluator {
         return polynomial;
     }
 
-
+    /**
+     * Finds the end index of the next term in the polynomial string.
+     *
+     * @param startIndex the starting index to search from
+     * @param polynomialString the polynomial string
+     * @return the index of the last character of the term
+     */
     private int findNextTermEnd(int startIndex, String polynomialString) {
         int index = startIndex;
 
@@ -214,7 +287,7 @@ public class PolynomialEvaluator {
 
 
 
-    // Identify the literal from the StringPolynomial
+    // Identifies the literal from the StringPolynomial
     private char getLiteralFromPolynomialString(String formattedPolynomialString) {
         for (int i = 0; i < formattedPolynomialString.length(); i++) {
             char currentChar = formattedPolynomialString.charAt(i);
@@ -501,6 +574,7 @@ public class PolynomialEvaluator {
     }
 
 
+    // Inner class to hide the constants
     private static class Constants {
 
         // ANSI Color Codes

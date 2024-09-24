@@ -160,14 +160,18 @@ public class Polynomial {
             degree = terms.getFirst().getExponent(); // the degree of a polynomial is the exponent of the first term (when sorted)
     }
 
+    // Method to combine the current term and newTerm
+    // Both have the same exponent and literals
     private Term oldPlusNewTerm(Term oldTerm, Term newTerm) {
         return oldTerm.withCoefficient(oldTerm.getCoefficient() + newTerm.getCoefficient());
     }
 
+    // Method to check if this Term and the newTerm have the same literal
     private boolean literalIsNotTheSame(Term newTerm) {
         return !isEmpty() && newTerm.getLiteral() != this.literalCoefficient;
     }
 
+    // Returns the Term which has the given exponent
     private Term getTermByExponent(int exponent) {
         for (Term term : terms) {
             if (term.getExponent() == exponent)
@@ -245,6 +249,8 @@ public class Polynomial {
     }
 
 
+    // Method for doing the repeating process of long division for polynomials;
+    // Divide the first term of both, then multiply the quotient to the divisor then subtract it to the dividend, then repeat.
     private Polynomial divisionRecursion(Polynomial dividend, Polynomial divisor, ArrayList<Term> quotients) {
         if (cannotPerformDivision(dividend, divisor))
             return new Polynomial(quotients, dividend);
@@ -265,12 +271,19 @@ public class Polynomial {
         return divisionRecursion(newDividend, divisor, quotients);
     }
 
+    // Method to decide if it can still divide
     private boolean cannotPerformDivision(Polynomial dividend, Polynomial divisor) {
         // Cannot perform basic division
         return dividend.degree < divisor.degree || dividend.terms.size() < divisor.terms.size();
     }
 
 
+    /**
+     * Evaluates the Polynomial given the value of its literal/s.
+     *
+     * @param value the value
+     * @return the result
+     */
     public double evaluate(double value) {
         double result = 0;
 
@@ -327,6 +340,7 @@ public class Polynomial {
         return termString.toString();
     }
 
+    // Helper method that removes the .0 of a double if a perfect integer
     private String formatCoefficient(double coefficient) {
         // Remove '.0' if it's an integer.
         return (coefficient % 1 == 0)
@@ -334,6 +348,7 @@ public class Polynomial {
                 : String.valueOf(coefficient);      // Non-integer case
     }
 
+    // Method to check if a the term is not a constant
     private boolean isNotConstant(Term term, double coefficient) {
         return !(coefficient == 1 && term.getExponent() != 0);
     }

@@ -6,21 +6,39 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
+
+/**
+ * The Logger saves the logs from the PolynomialEvaluator class' data.
+ */
 public class Logger {
     private static final ArrayList<Log> logs = new ArrayList<Log>();
     private static int logCountUponStartingProgram;
 
+
+    /**
+     * Adds a new log entry with date.
+     *
+     * @param entryLog be logged
+     * @param date     the date and time of the log entry
+     */
     public static void addLog(String entryLog, Date date) {
         Log newLog = new Log(entryLog, date);
         logs.add(newLog);
     }
 
+    /**
+     * Displays all log entries to the console.
+     */
     public static void viewLog() {
         for (Log log : logs)
             System.out.println(log + "\n\n");
     }
 
 
+    /**
+     * Reads log data from the specified file and populates the logs list.
+     * Each log entry consists of a date followed by the log content.
+     */
     public static void ReadData() {
         try (BufferedReader reader = new BufferedReader(new FileReader("src/LogsPackage/Logs.txt"))) {
             String line;
@@ -48,6 +66,10 @@ public class Logger {
         logCountUponStartingProgram = logs.size();
     }
 
+
+    /**
+     * Appends and Saves any new log entries to the specified file.
+     */
     public static void saveData() {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter("src/LogsPackage/Logs.txt", true))) {
             for (int i = logCountUponStartingProgram; i < logs.size(); i++) {
