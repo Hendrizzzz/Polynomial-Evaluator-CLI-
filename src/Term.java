@@ -2,36 +2,53 @@ import java.util.Objects;
 
 
 /**
- * A Term designed for the PolynomialEvaluator program. This term doesn't support multivariable.
- * But few multivariable-support methods are still included.
+ * An Immutable Term designed for the PolynomialEvaluator program. This term doesn't support multivariable.
  */
 public class Term implements Comparable<Term>{
     private final double coefficient;
-    private final String variable;
+    private final char literal;
     private final int exponent;
 
-    public Term(double coefficient, String variable, int exponent) {
+    /**
+     * Constructs a Term given its all datafields.
+     * @param coefficient the coefficient to be set in this Term.
+     * @param literal the literal to be set in this Term.
+     * @param exponent the exponent to be set in this Term.
+     */
+    public Term(double coefficient, char literal, int exponent) {
         this.coefficient = coefficient;
-        this.variable = variable;
+        this.literal = literal;
         this.exponent = exponent;
     }
 
+    /**
+     * Constructs a new Term based on the given Term
+     * @param term the Term to be copied
+     */
     public Term(Term term) {
         this.coefficient = term.coefficient;
-        this.variable = term.variable;
+        this.literal = term.literal;
         this.exponent = term.exponent;
     }
 
+    /**
+     * Constructs a new Term with the same datafields except for coefficient
+     * @param newCoefficient the new coefficient to be set
+     * @return a new Term
+     */
+    public Term withCoefficient(double newCoefficient) {
+        return new Term(newCoefficient, this.literal, this.exponent);
+    }
 
+
+    // Getter methods
     public double getCoefficient() {
         return coefficient;
     }
 
-
-    public String getVariable() {
-        return variable;
+    public char getLiteral() {
+        return literal;
     }
-
 
     public int getExponent() {
         return exponent;
@@ -46,10 +63,10 @@ public class Term implements Comparable<Term>{
      * @return A new Term, if you can't add then returns a null value
      */
     public Term add(Term other) {
-        if (notTheSameExponent(other))
+        if (notTheSameExponent(other) || notSameLiteral(other))
             return null;
         double newNumCoefficient = this.coefficient + other.coefficient;
-        return new Term(newNumCoefficient, this.variable, this.exponent);
+        return new Term(newNumCoefficient, this.literal, this.exponent);
     }
 
 
@@ -60,24 +77,21 @@ public class Term implements Comparable<Term>{
      * @return A new Term, if you can't subtract then returns a null value
      */
     public Term subtract(Term other) {
-        if (notTheSameExponent(other))
+        if (notTheSameExponent(other) || notSameLiteral(other))
             return null;
         double newCoefficient = this.coefficient + other.coefficient;
-        return new Term(newCoefficient, this.variable, this.exponent);
+        return new Term(newCoefficient, this.literal, this.exponent);
     }
 
-    private boolean notSameExponentOrVariable(Term other) {
-        return notTheSameExponent(other) || notTheSameVariable(other);
+    // Won't be used in this program
+    private boolean notSameLiteral(Term other) {
+        return this.literal != other.literal;
     }
+
 
     private boolean notTheSameExponent(Term other) {
         // Nothing to simplify, cannot add or subtract two terms with different exponents
         return this.exponent != other.exponent;
-    }
-
-    private boolean notTheSameVariable(Term other) {
-        // Nothing to simplify, cannot add or subtract two terms with different literal coefficients
-        return !this.variable.equals(other.variable);
     }
 
 
@@ -87,9 +101,11 @@ public class Term implements Comparable<Term>{
      * @param other the other Term to be multiplied to this Term.
      */
     public Term multiply(Term other) {
+        if (notSameLiteral(other))
+            return null;
         int resultingExponent = this.exponent + other.exponent;
         double resultingCoefficient = this.coefficient * other.coefficient;
-        return new Term(resultingCoefficient, this.variable, resultingExponent);
+        return new Term(resultingCoefficient, this.literal, resultingExponent);
     }
 
 
@@ -99,9 +115,11 @@ public class Term implements Comparable<Term>{
      * @return the quotient Term
      */
     public Term divideBy(Term other) {
+        if (notSameLiteral(other))
+            return null;
         int resultingExponent = this.exponent - other.exponent;
         double resultingCoefficient = this.coefficient / other.coefficient;
-        return new Term(resultingCoefficient, this.variable, resultingExponent);
+        return new Term(resultingCoefficient, this.literal, resultingExponent);
     }
 
 
@@ -113,8 +131,8 @@ public class Term implements Comparable<Term>{
         Term term = (Term) o;
 
         if (Double.compare(coefficient, term.coefficient) != 0) return false;
-        if (exponent != term.exponent) return false;
-        return Objects.equals(variable, term.variable);
+        if (literal != term.literal) return false;
+        return exponent == term.exponent;
     }
 
     @Override
@@ -123,22 +141,36 @@ public class Term implements Comparable<Term>{
         long temp;
         temp = Double.doubleToLongBits(coefficient);
         result = (int) (temp ^ (temp >>> 32));
-        result = 31 * result + (variable != null ? variable.hashCode() : 0);
+        result = 31 * result + (int) literal;
         result = 31 * result + exponent;
         return result;
     }
 
     @Override
     public String toString() {
+        if (coefficient == 0)
+            return "0";
+
+        String stringCoefficient = (this.coefficient % 1 == 0)
+                ? String.valueOf((int) this.coefficient) // Integer case
+                : String.valueOf(this.coefficient);      // Non-integer case
+
         if (exponent == 0)
-            return String.valueOf(coefficient);
+            return stringCoefficient;
 
-        // This may not be used in this program
+        if (this.coefficient == 1)
+            return literal + "^" + exponent;
+        else if (this.coefficient == -1)
+            return "-" + literal + "^" + exponent;
+
         if (exponent < 0)
-            return coefficient + "/" + variable + "^" + -exponent; // bring the exponent down
+            return stringCoefficient + "/" + literal + "^" + -exponent; // bring the exponent down
+        else if (exponent == 1)
+            return stringCoefficient + literal;
 
-        return coefficient + variable + "^" + exponent;
+        return stringCoefficient + literal + "^" + exponent;
     }
+
 
     /**
      * @param o the object to be compared.
@@ -158,7 +190,7 @@ public class Term implements Comparable<Term>{
 
     }
 
-    public Term withCoefficient(double newCoefficient) {
-        return new Term(newCoefficient, this.variable, this.exponent);
+    public double evaluate(double value) {
+        return coefficient * (Math.pow(value, exponent));
     }
 }
