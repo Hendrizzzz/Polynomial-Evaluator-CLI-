@@ -155,19 +155,22 @@ public class Term implements Comparable<Term>{
                 ? String.valueOf((int) this.coefficient) // Integer case
                 : String.valueOf(this.coefficient);      // Non-integer case
 
-        if (exponent == 0)
-            return stringCoefficient;
+        if (exponent == 0) {
+            if (this.coefficient == 1)
+                return "1";
+            else if (coefficient == -1)
+                return "-1";
+        }
 
         if (this.coefficient == 1)
-            return literal + "^" + exponent;
+            stringCoefficient = "";
         else if (this.coefficient == -1)
-            return "-" + literal + "^" + exponent;
+            stringCoefficient = "-";
 
         if (exponent < 0)
-            return stringCoefficient + "/" + literal + "^" + -exponent; // bring the exponent down
+            return (stringCoefficient.isEmpty() ? 1 : stringCoefficient) + "/" + literal + "^" + -exponent; // bring the exponent down
         else if (exponent == 1)
             return stringCoefficient + literal;
-
         return stringCoefficient + literal + "^" + exponent;
     }
 

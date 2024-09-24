@@ -34,6 +34,7 @@ public class PolynomialEvaluator {
         boolean userWantsMore = true;
 
         do {
+            pressEnter(reader);
             int choice = readChoice(reader);
 
             try {
@@ -49,7 +50,6 @@ public class PolynomialEvaluator {
             } catch (IllegalArgumentException e) {
                 System.out.println(Constants.MULTI_LITERAL_ERROR_MESSAGE);
             }
-            pressEnter(reader);
         } while (userWantsMore);
 
         Logger.saveData();
@@ -295,35 +295,43 @@ public class PolynomialEvaluator {
 
 
     private Term convertStringToTermGivenLiteral(String termString, char literal) {
-        double coefficient = 1;
-        int exponent = 0;
+        double coefficient = 1; // Default coefficient
+        int exponent = 0; // Default exponent
 
         if (termStringHasLiteral(termString)) {
             // Split the string into coefficient and literal parts
             String[] parts = splitString(termString, "(?=[" + literal + "])");
-            String coefficientPart = parts[0];
-            String literalPart = parts[1];     // Includes the variable and exponent
+
+            String coefficientPart;
+            String literalPart;
+
+            if (parts.length == 1) {
+                literalPart = parts[0]; // Contains "a^2"
+                coefficientPart = ""; // No coefficient provided
+            } else {
+                coefficientPart = parts[0];
+                literalPart = parts[1]; // Contains "a^2" or similar
+            }
 
             if (hasCoefficient(coefficientPart))
                 coefficient = getCoefficientPart(coefficientPart);
             else if (coefficientIsNegativeOne(coefficientPart))
                 coefficient = -1;
 
-            // Validate for multi-variable terms
             if (literalIsMoreThanOne(literalPart))
                 throw new IllegalArgumentException("Invalid Term: Multi-variable terms are not supported.");
 
-            // Determine the exponent
             if (hasExponent(literalPart)) {
                 String[] varParts = splitString(literalPart, "\\^");
                 exponent = getExponentPart(varParts);
             } else
                 exponent = 1; // If no explicit exponent, set to 1
         } else
-            coefficient = Double.parseDouble(termString.trim());
+            coefficient = Double.parseDouble(termString);
 
         return new Term(coefficient, literal, exponent);
     }
+
 
 
 
@@ -398,7 +406,7 @@ public class PolynomialEvaluator {
 
             // Verify choice
             if (choice < min || choice > max)
-                System.out.print(Constants.RED + Constants.BOLD + "CHOICE NOT FOUND. Please enter a number from " + min + " to " + max + " only. Try again. "+ Constants.RESET + "\n-> ");
+                System.out.print(Constants.RED + Constants.BOLD + "INVALID INPUT. Please enter a number from " + min + " to " + max + " only. Try again. "+ Constants.RESET + "\n-> ");
             else
                 inputIsNotValid = false;
         }
