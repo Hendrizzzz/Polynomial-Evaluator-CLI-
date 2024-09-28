@@ -1,7 +1,7 @@
-# CLI Polynomial Evaluator
+# CLI midterms.Polynomial Evaluator
 
 ## Overview
-The Polynomial Evaluator is a program designed to perform various operations on polynomials, including evaluation, addition, subtraction, multiplication, and division. It also allows users to view a history of operations performed.
+The midterms.Polynomial Evaluator is a program designed to perform various operations on polynomials, including evaluation, addition, subtraction, multiplication, and division. It also allows users to view a history of operations performed.
 
 ## Features
 - Evaluate polynomial expressions
@@ -20,15 +20,15 @@ The Polynomial Evaluator is a program designed to perform various operations on 
     |
 [User Selects Option]
     |
-    +--> [Evaluate Polynomial] ---> [Enter Polynomial Expression] ---> [Enter Coefficient] ---> [Evaluate and Display Result] ---> [Log Operation] ---> [Return to Main Menu]
+    +--> [Evaluate midterms.Polynomial] ---> [Enter midterms.Polynomial Expression] ---> [Enter Coefficient] ---> [Evaluate and Display Result] ---> [Log Operation] ---> [Return to Main Menu]
     |
-    +--> [Add Polynomials] ---> [Enter First Polynomial] ---> [Enter Second Polynomial] ---> [Add and Display Result] ---> [Log Operation] ---> [Return to Main Menu]
+    +--> [Add Polynomials] ---> [Enter First midterms.Polynomial] ---> [Enter Second midterms.Polynomial] ---> [Add and Display Result] ---> [Log Operation] ---> [Return to Main Menu]
     |
-    +--> [Subtract Polynomials] ---> [Enter First Polynomial] ---> [Enter Second Polynomial] ---> [Subtract and Display Result] ---> [Log Operation] ---> [Return to Main Menu]
+    +--> [Subtract Polynomials] ---> [Enter First midterms.Polynomial] ---> [Enter Second midterms.Polynomial] ---> [Subtract and Display Result] ---> [Log Operation] ---> [Return to Main Menu]
     |
-    +--> [Multiply Polynomials] ---> [Enter First Polynomial] ---> [Enter Second Polynomial] ---> [Multiply and Display Result] ---> [Log Operation] ---> [Return to Main Menu]
+    +--> [Multiply Polynomials] ---> [Enter First midterms.Polynomial] ---> [Enter Second midterms.Polynomial] ---> [Multiply and Display Result] ---> [Log Operation] ---> [Return to Main Menu]
     |
-    +--> [Divide Polynomials] ---> [Enter First Polynomial] ---> [Enter Second Polynomial] ---> [Divide and Display Result] ---> [Log Operation] ---> [Return to Main Menu]
+    +--> [Divide Polynomials] ---> [Enter First midterms.Polynomial] ---> [Enter Second midterms.Polynomial] ---> [Divide and Display Result] ---> [Log Operation] ---> [Return to Main Menu]
     |
     +--> [View History] ---> [Display Operation History] ---> [Return to Main Menu]
     |

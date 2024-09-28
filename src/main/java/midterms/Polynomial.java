@@ -1,3 +1,5 @@
+package midterms;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -8,21 +10,21 @@ import java.util.List;
  * Designed to support only one literal coefficient.
  * Supports method chaining.
  */
-public class Polynomial {
+public final class Polynomial {
     private final ArrayList<Term> terms;
-    private int degree;
-    private Polynomial remainder;
-    private char literalCoefficient; // For checking, since this only supports one variable
+    private final int degree;
+    private final Polynomial remainder;
+    private final char literalCoefficient; // For checking, since this only supports one variable
 
-    {
-        degree = 0;
-    }
 
     /**
      * Default Constructor, constructs a polynomial with no elements.
      */
     public Polynomial() {
         this.terms = new ArrayList<>();
+        this.degree = 0;
+        this.remainder = null;
+        this.literalCoefficient = 0;
     }
 
 
@@ -32,15 +34,7 @@ public class Polynomial {
      * @param terms the terms
      */
     public Polynomial(ArrayList<Term> terms) {
-        this.terms = new ArrayList<>();
-        ArrayList<Term> toBeAddedTerms = new ArrayList<>(List.copyOf(terms));
-        Collections.sort(toBeAddedTerms);
-        if (!toBeAddedTerms.isEmpty())
-            literalCoefficient = toBeAddedTerms.get(0).getLiteral();
-
-        for (Term term : toBeAddedTerms)
-            addTerm(term);
-
+        this (terms, null);
     }
 
 
@@ -49,9 +43,12 @@ public class Polynomial {
      * @param polynomial the Polynomial to be constructed from
      */
     public Polynomial(Polynomial polynomial) {
-        this.terms = polynomial.terms;
+        // Defensive copy for Reference objects
+        this.terms = new ArrayList<>(polynomial.terms);
+        this.remainder = new Polynomial(polynomial.remainder);
+
+        // Primitive types
         this.degree = polynomial.degree;
-        this.remainder = polynomial.remainder;
         this.literalCoefficient = polynomial.literalCoefficient;
     }
 
@@ -61,23 +58,28 @@ public class Polynomial {
      * @param remainder the remainder of this Polynomial
      */
     public Polynomial(ArrayList<Term> terms, Polynomial remainder) {
-        this(terms);
-        if (remainder.isEmpty())
-            this.remainder = null;
-        else
-            this.remainder = new Polynomial(remainder);
+        this.remainder = remainder;
+        if (terms == null)
+            throw new IllegalArgumentException();
+
+        if (terms.isEmpty()) {
+            this.terms = new ArrayList<>();
+            this.degree = 0;
+            this.literalCoefficient = 0;
+            return;
+        }
+
+        literalCoefficient = terms.getFirst().getLiteral();
+
+        this.terms = new ArrayList<>();
+        ArrayList<Term> toBeAddedTerms = new ArrayList<>(terms); // to avoid sorting the passed terms
+        Collections.sort(toBeAddedTerms);
+        degree = toBeAddedTerms.getFirst().getExponent(); // the degree of a polynomial is the exponent of the first term (when sorted)
+
+        for (Term term : toBeAddedTerms) // Deep copy
+            addTerm(new Term(term));
     }
 
-    /**
-     * Constructs a Polynomial with a first term.
-     * @param leadTerm the first term of the polynomial
-     * @param remainder the remainder of the polynomial
-     */
-    public Polynomial(Term leadTerm, Polynomial remainder) {
-        this.terms = new ArrayList<>();
-        this.terms.add(new Term(leadTerm));
-        this.remainder = new Polynomial(remainder);
-    }
 
 
     /**
@@ -137,33 +139,23 @@ public class Polynomial {
      * @param newTerm the term to be added in the Polynomial
      */
     public void addTerm(Term newTerm) {
-        if (isEmpty())
-            this.literalCoefficient = newTerm.getLiteral();
-
         if (literalIsNotTheSame(newTerm))
             throw new IllegalArgumentException("Inconsistent literal coefficients. ");
 
-        Term oldTerm = this.getTermByExponent(newTerm.getExponent());
+        Term currentTerm = this.getTermByExponent(newTerm.getExponent());
 
-        if (oldTerm != null) { // Update if the polynomial already has a term with similar exponent
-            terms.remove(oldTerm);
-            Term updatedTerm = oldPlusNewTerm(oldTerm, newTerm);
-            if (updatedTerm.getCoefficient() != 0)
+        if (currentTerm != null) { // Update if the polynomial already has a term with similar exponent
+            terms.remove(currentTerm);
+            Term updatedTerm = updateTerm(currentTerm, newTerm);
+            if (updatedTerm.getCoefficient() != 0) // don't add if coefficient is 0
                 terms.add(updatedTerm);
         }
         else
             terms.add(newTerm);
-
-        // Update
-        Collections.sort(terms);
-        if (!isEmpty())
-            degree = terms.getFirst().getExponent(); // the degree of a polynomial is the exponent of the first term (when sorted)
     }
 
-    // Method to combine the current term and newTerm
-    // Both have the same exponent and literals
-    private Term oldPlusNewTerm(Term oldTerm, Term newTerm) {
-        return oldTerm.withCoefficient(oldTerm.getCoefficient() + newTerm.getCoefficient());
+    private Term updateTerm(Term currentTerm, Term newTerm) {
+        return currentTerm.withCoefficient(currentTerm.getCoefficient() + newTerm.getCoefficient());
     }
 
     // Method to check if this Term and the newTerm have the same literal
@@ -173,10 +165,10 @@ public class Polynomial {
 
     // Returns the Term which has the given exponent
     private Term getTermByExponent(int exponent) {
-        for (Term term : terms) {
+        for (Term term : terms)
             if (term.getExponent() == exponent)
                 return term;
-        }
+
         return null;
     }
 
@@ -191,7 +183,7 @@ public class Polynomial {
         ArrayList<Term> allTerms = new ArrayList<>(this.terms);
         allTerms.addAll(other.terms);
 
-        return new Polynomial(allTerms); // The constructor will organize this list of terms
+        return new Polynomial(allTerms);
     }
 
 
@@ -206,11 +198,11 @@ public class Polynomial {
 
         // The terms of the subtrahend should be multiplied to -1 before adding
         for (Term term : other.terms) {
-            Term negatedTerm = term.withCoefficient(-term.getCoefficient());
+            Term negatedTerm = term.withCoefficient(-1 * term.getCoefficient());
             allTerms.add(negatedTerm);
         }
 
-        return new Polynomial(allTerms); // The constructor will organize this list of terms
+        return new Polynomial(allTerms);
     }
 
 
@@ -224,9 +216,9 @@ public class Polynomial {
         // Distribute each term, collect all products and make a new Polynomial of that list
         for (Term thisTerm : this.terms)
             for (Term otherTerm : other.terms)
-                results.add(thisTerm.multiply(otherTerm));
+                results.add(thisTerm.multiplyBy(otherTerm));
 
-        return new Polynomial(results); // The constructor will organize this list of terms
+        return new Polynomial(results);
     }
 
 
@@ -235,14 +227,15 @@ public class Polynomial {
      * @param other the other Polynomial to be divided to this object
      */
     public Polynomial divideBy(Polynomial other) {
-        if (this.isEmpty() || other.isEmpty())
+        if (this.isEmpty())
+            return new Polynomial(new ArrayList<>(), this); // return 0, with the remainder of this
+
+        if (other.isEmpty())
             throw new IllegalArgumentException("One of the Polynomials is empty. ");
 
         // Return 0 with the remainder of this Polynomial (dividend)
-        if (cannotPerformDivision(this, other)) {
-            Term quotient = new Term(0, 'x', 0);
-            return new Polynomial(quotient, this);
-        }
+        if (cannotPerformDivision(this, other))
+            return new Polynomial(new ArrayList<>(), this);
 
         ArrayList<Term> quotients = new ArrayList<>();
         return divisionRecursion(this, other, quotients);
@@ -250,7 +243,8 @@ public class Polynomial {
 
 
     // Method for doing the repeating process of long division for polynomials;
-    // Divide the first term of both, then multiply the quotient to the divisor then subtract it to the dividend, then repeat.
+    // Divide the first term of both, then multiply the quotient to the divisor,
+    // then subtract it to the dividend, then repeat.
     private Polynomial divisionRecursion(Polynomial dividend, Polynomial divisor, ArrayList<Term> quotients) {
         if (cannotPerformDivision(dividend, divisor))
             return new Polynomial(quotients, dividend);
@@ -263,7 +257,7 @@ public class Polynomial {
         ArrayList<Term> queue = new ArrayList<>(); // the terms which to be subtracted in the current dividend
 
         for (Term term : divisor.terms)
-            queue.add(quotient.multiply(term));
+            queue.add(quotient.multiplyBy(term));
 
         // Update the dividend and perform division again
         Polynomial toBeSubtracted = new Polynomial(queue);
@@ -348,7 +342,7 @@ public class Polynomial {
                 : String.valueOf(coefficient);      // Non-integer case
     }
 
-    // Method to check if a the term is not a constant
+    // Method to check if a term is not a constant
     private boolean isNotConstant(Term term, double coefficient) {
         return !(coefficient == 1 && term.getExponent() != 0);
     }

@@ -1,16 +1,18 @@
+package midterms;
+
 /**
- * An Immutable Term designed for the PolynomialEvaluator program. This term doesn't support multivariable.
+ * An Immutable midterms.Term designed for the midterms.PolynomialEvaluator program. This term doesn't support multivariable.
  */
-public class Term implements Comparable<Term>{
+public final class Term implements Comparable<Term>{
     private final double coefficient;
     private final char literal;
     private final int exponent;
 
     /**
-     * Constructs a Term given its all datafields.
-     * @param coefficient the coefficient to be set in this Term.
-     * @param literal the literal to be set in this Term.
-     * @param exponent the exponent to be set in this Term.
+     * Constructs a midterms.Term given its all datafields.
+     * @param coefficient the coefficient to be set in this midterms.Term.
+     * @param literal the literal to be set in this midterms.Term.
+     * @param exponent the exponent to be set in this midterms.Term.
      */
     public Term(double coefficient, char literal, int exponent) {
         this.coefficient = coefficient;
@@ -19,8 +21,8 @@ public class Term implements Comparable<Term>{
     }
 
     /**
-     * Constructs a new Term based on the given Term
-     * @param term the Term to be copied
+     * Constructs a new midterms.Term based on the given midterms.Term
+     * @param term the midterms.Term to be copied
      */
     public Term(Term term) {
         this.coefficient = term.coefficient;
@@ -29,9 +31,9 @@ public class Term implements Comparable<Term>{
     }
 
     /**
-     * Constructs a new Term with the same datafields except for coefficient
+     * Constructs a new midterms.Term with the same datafields except for coefficient
      * @param newCoefficient the new coefficient to be set
-     * @return a new Term
+     * @return a new midterms.Term
      */
     public Term withCoefficient(double newCoefficient) {
         return new Term(newCoefficient, this.literal, this.exponent);
@@ -70,10 +72,10 @@ public class Term implements Comparable<Term>{
 
 
     /**
-     * Adds this Term to the other Term then returns a new Term with the sum.
+     * Adds this midterms.Term to the other midterms.Term then returns a new midterms.Term with the sum.
      *
-     * @param other the other term to be added to this Term
-     * @return A new Term, if you can't add then returns a null value
+     * @param other the other term to be added to this midterms.Term
+     * @return A new midterms.Term, if you can't add then returns a null value
      */
     public Term add(Term other) {
         if (notTheSameExponent(other) || notSameLiteral(other))
@@ -84,10 +86,10 @@ public class Term implements Comparable<Term>{
 
 
     /**
-     * Subtracts this Term to the other Term then returns a new Term with the difference.
+     * Subtracts this midterms.Term to the other midterms.Term then returns a new midterms.Term with the difference.
      *
-     * @param other the other term to be added to this Term
-     * @return A new Term, if you can't subtract then returns a null value
+     * @param other the other term to be added to this midterms.Term
+     * @return A new midterms.Term, if you can't subtract then returns a null value
      */
     public Term subtract(Term other) {
         if (notTheSameExponent(other) || notSameLiteral(other))
@@ -102,7 +104,7 @@ public class Term implements Comparable<Term>{
     }
 
 
-    // Method to check if this Term and the other Term has the same exponent
+    // Method to check if this midterms.Term and the other midterms.Term has the same exponent
     // Returns false if they have the same exponent, otherwise, true
     private boolean notTheSameExponent(Term other) {
         // Nothing to simplify, cannot add or subtract two terms with different exponents
@@ -111,11 +113,11 @@ public class Term implements Comparable<Term>{
 
 
     /**
-     * Multiplies this Term to the other Term.
+     * Multiplies this midterms.Term to the other midterms.Term.
      * Returns void because you can multiply two any kinds of Terms.
-     * @param other the other Term to be multiplied to this Term.
+     * @param other the other midterms.Term to be multiplied to this midterms.Term.
      */
-    public Term multiply(Term other) {
+    public Term multiplyBy(Term other) {
         if (notSameLiteral(other))
             return null;
         int resultingExponent = this.exponent + other.exponent;
@@ -125,9 +127,9 @@ public class Term implements Comparable<Term>{
 
 
     /**
-     * Divides this Term to the other Term.
+     * Divides this midterms.Term to the other midterms.Term.
      * @param other The divisor
-     * @return the quotient Term
+     * @return the quotient midterms.Term
      */
     public Term divideBy(Term other) {
         if (notSameLiteral(other))
@@ -139,12 +141,12 @@ public class Term implements Comparable<Term>{
 
 
     /**
-     * Compares this Term object to the specified object for equality.
-     * Two Term objects are considered equal if they have the same coefficient,
+     * Compares this midterms.Term object to the specified object for equality.
+     * Two midterms.Term objects are considered equal if they have the same coefficient,
      * literal, and exponent values.
      *
      * @param o the object to be compared for equality
-     * @return true if this Term is equal to the specified object, false otherwise
+     * @return true if this midterms.Term is equal to the specified object, false otherwise
      */
     @Override
     public boolean equals(Object o) {
@@ -160,9 +162,9 @@ public class Term implements Comparable<Term>{
 
 
     /**
-     * Generates a hash code for the Term object based on its properties.
+     * Generates a hash code for the midterms.Term object based on its properties.
      *
-     * @return an integer hash code for this Term.
+     * @return an integer hash code for this midterms.Term.
      */
     @Override
     public int hashCode() {
@@ -177,7 +179,7 @@ public class Term implements Comparable<Term>{
 
 
     /**
-     * Returns a string representation of the Term object.
+     * Returns a string representation of the midterms.Term object.
      *
      * @return a formatted string that represents the term.
      */
@@ -228,13 +230,13 @@ public class Term implements Comparable<Term>{
 
 
     /**
-     * Compares this Term object with another Term for sorting purposes.
+     * Compares this midterms.Term object with another midterms.Term for sorting purposes.
      * It sorts Terms primarily by their exponent in descending order
      * and secondarily by their coefficients in descending order.
      *
-     * @param o the Term to be compared
-     * @return a negative integer, zero, or a positive integer as this Term
-     *         is less than, equal to, or greater than the specified Term
+     * @param o the midterms.Term to be compared
+     * @return a negative integer, zero, or a positive integer as this midterms.Term
+     *         is less than, equal to, or greater than the specified midterms.Term
      */
     @Override
     public int compareTo(Term o) {

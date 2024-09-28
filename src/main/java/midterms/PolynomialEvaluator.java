@@ -1,8 +1,11 @@
-import LogsPackage.Logger;
+package midterms;
+
+import midterms.LogsPackage.Logger;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Date;
 
 /**
@@ -117,10 +120,10 @@ public class PolynomialEvaluator {
                 "[OPTION " + optionNumber + "] " + process + " Two Polynomials. "
                 + Constants.RESET);
 
-        System.out.println(Constants.BOLD + "\nConstructing FIRST Polynomial... " + Constants.RESET);
+        System.out.println(Constants.FIRST_POLYNOMIAL_CONSTRUCTION_MESSAGE);
         Polynomial polynomial1 = constructPolynomial(reader);
 
-        System.out.println(Constants.BOLD + "\nConstructing SECOND Polynomial... " + Constants.RESET);
+        System.out.println(Constants.SECOND_POLYNOMIAL_CONSTRUCTION_MESSAGE);
         Polynomial polynomial2 = constructPolynomial(reader);
 
         // Display Results
@@ -172,17 +175,17 @@ public class PolynomialEvaluator {
     }
 
     /**
-     * Constructs a polynomial directly from user input. (i.e -x -5x^2 + 3)
+     * Constructs a polynomial directly from user input. (i.e. -x -5x^2 + 3)
      *
      * @param reader a BufferedReader to read user input
      * @return the constructed Polynomial
      * @throws IOException if an I/O error occurs during input
      */
-    private Polynomial constructPolynomialDirectly(BufferedReader reader) throws IOException {
+    public Polynomial constructPolynomialDirectly(BufferedReader reader) throws IOException {
         // Manual polynomial entry
         System.out.print("Please enter the polynomial (e.g., 5x^2 + 3x + 1): ");
         String polynomialString = reader.readLine();
-        Polynomial polynomial = convertStringToPolynomial(polynomialString);
+        Polynomial polynomial = constructPolynomialFromString(polynomialString);
         System.out.println(Constants.GREEN + Constants.BOLD + "Polynomial entered successfully: " + polynomial + Constants.RESET);
         return polynomial;
     }
@@ -203,14 +206,17 @@ public class PolynomialEvaluator {
         char literal = readLiteral(reader);
 
         Polynomial polynomial = new Polynomial();
-        for (int i = 0; i < termCount; i++) {
-            System.out.println(Constants.BOLD + "Constructing Term " + (i + 1) + "..." + Constants.RESET);
-            Term term = constructTermGivenLiteral(literal, reader);
-            polynomial.addTerm(term);
-        }
+        for (int i = 0; i < termCount; i++)
+            addNewTerm(polynomial, literal, reader, i);
 
         System.out.println(Constants.GREEN + Constants.BOLD + "Polynomial constructed successfully: " + polynomial + Constants.RESET);
         return polynomial;
+    }
+
+    private void addNewTerm(Polynomial polynomial, char literal, BufferedReader reader, int i) {
+        System.out.println(Constants.BOLD + "Constructing Term " + (i + 1) + "..." + Constants.RESET);
+        Term term = constructTermGivenLiteral(literal, reader);
+        polynomial.addTerm(term);
     }
 
 
@@ -240,33 +246,34 @@ public class PolynomialEvaluator {
      * @param polynomialString the string representation of the polynomial
      * @return the constructed Polynomial
      */
-    private Polynomial convertStringToPolynomial(String polynomialString) {
+    public Polynomial constructPolynomialFromString(String polynomialString) {
         if (polynomialString == null || polynomialString.isBlank())
             return new Polynomial(); // Return empty polynomial
 
-        // Remove whitespaces
-        String formattedPolynomialString = polynomialString.replace(" ", "");
+        if (polynomialString.length() == 1 && !Character.isDigit(polynomialString.charAt(0)))
+            throw new IllegalArgumentException("INVALID POLYNOMIAL");
 
-        // Determine the literal
+        String formattedPolynomialString = polynomialString.replace(" ", "");
         char literal = getLiteralFromPolynomialString(formattedPolynomialString);
 
-        Polynomial polynomial = new Polynomial();
+        ArrayList<Term> terms = new ArrayList<>();
 
-        int currentTermIndex = 0;
-        int currentTermCharIndex = 0;
         // Have 2 pointers, one from the starting index of a term and one on the ending of the same term
         // Then read each term one by one then passed that to the termString to Term method
+        int currentTermIndex = 0;
+        int currentTermCharIndex = 0;
         while (currentTermIndex < formattedPolynomialString.length()) {
-            currentTermCharIndex = findNextTermEnd(currentTermCharIndex, formattedPolynomialString);
-            String termString = formattedPolynomialString.substring(currentTermIndex, currentTermCharIndex);
+            currentTermCharIndex = findNextTermEndIndex(++currentTermCharIndex, formattedPolynomialString); // set it to the last index + 1 of the current term
+            String termString = formattedPolynomialString.substring(currentTermIndex, currentTermCharIndex); // extract that from the polynomial
             Term term = convertStringToTermGivenLiteral(termString, literal);
-            polynomial.addTerm(term);
+            terms.add(term);
             currentTermIndex = currentTermCharIndex; // Move to the next term
-            currentTermCharIndex++;
         }
 
-        return polynomial;
+        return new Polynomial(terms);
     }
+
+
 
     /**
      * Finds the end index of the next term in the polynomial string.
@@ -275,16 +282,19 @@ public class PolynomialEvaluator {
      * @param polynomialString the polynomial string
      * @return the index of the last character of the term
      */
-    private int findNextTermEnd(int startIndex, String polynomialString) {
+    private int findNextTermEndIndex(int startIndex, String polynomialString) {
         int index = startIndex;
 
-        while (index < polynomialString.length() && notReadingATerm(startIndex, index, polynomialString)) {
+        while (index < polynomialString.length() && isCharacterNotOperator(polynomialString.charAt(index))) {
             index++;
         }
 
         return index; // Return the index of the last character of the term
     }
 
+    private boolean isCharacterNotOperator(char character) {
+        return character != '-' && character != '+';
+    }
 
 
     // Identifies the literal from the StringPolynomial
@@ -299,37 +309,41 @@ public class PolynomialEvaluator {
 
 
     // Method that returns a Term object given its String form and the literal
-    private Term convertStringToTermGivenLiteral(String termString, char literal) {
-        double coefficient = 1; // Default coefficient
+    public Term convertStringToTermGivenLiteral(String termString, char literal) {
+        double coefficient; // Default coefficient
         int exponent = 0; // Default exponent
 
+        // Split the term string based on the literal character, preserving the literal character in the split parts.
+        // If the term string doesn't contain the literal, the entire string is considered the coefficient part.
         if (termStringHasLiteral(termString)) {
             String[] parts = splitString(termString, "(?=[" + literal + "])");
 
+            // Extract the coefficient part (if present) and the literal part.
             String coefficientPart = (parts.length > 1) ? parts[0] : "";
             String literalPart = (parts.length > 1) ? parts[1] : parts[0]; // Either the literal part or the entire term
 
             coefficient = parseCoefficient(coefficientPart);
-            exponent = parseExponent(literalPart, literal);
+            exponent = parseExponent(literalPart);
         } else
+            // If the term doesn't contain a literal, the entire string is the coefficient.
             coefficient = Double.parseDouble(termString);
 
         return new Term(coefficient, literal, exponent);
     }
 
-    // Given a coefficient part (i.e -, 4 or none at all) it returns the coefficient
+    // Given a coefficient part (i.e. -, 4 or none at all), it returns the coefficient
     private double parseCoefficient(String coefficientPart) {
         if (hasCoefficient(coefficientPart))
             return getCoefficientPart(coefficientPart);
-        else if (coefficientIsNegativeOne(coefficientPart))
+        else if (isCoefficientNegativeOne(coefficientPart))
             return -1;
 
         return 1; // Default coefficient if none specified
     }
 
     // Helper method
-    // Given a literal part (i.e x^3) and the literal, it returns the exponent
-    private int parseExponent(String literalPart, char literal) {
+    // Given a literal part (i.e., x^3), it returns the exponent
+    private int parseExponent(String literalPart) {
         if (literalIsMoreThanOne(literalPart))
             throw new IllegalArgumentException("Invalid Term: Multi-variable terms are not supported.");
 
@@ -368,21 +382,22 @@ public class PolynomialEvaluator {
 
 
     // Method that reads literal (char)
-    private char readLiteral(BufferedReader reader) {
+    public char readLiteral(BufferedReader reader) {
         while (true) {
             try {
                 String charString = reader.readLine();
-                if (charString.length() > 1)
+                if (charString.length() > 1) {
                     System.out.println(Constants.RED + Constants.BOLD + "INVALID INPUT. Literals should only be 1. Try again. " + Constants.RESET + "\n-> ");
-                else {
-                    char literal = charString.charAt(0);
-                    if (Character.isLetter(literal))
-                        return literal;
-                    else
-                        System.out.print(Constants.BOLD + Constants.RED + "INVALID INPUT. Not a valid symbolic representation for literal coefficient. Try again. " + Constants.RESET + "\n-> ");
+                    continue;
                 }
+
+                char literal = charString.charAt(0);
+                if (Character.isLetter(literal))
+                    return literal;
+                else
+                    System.out.print(Constants.BOLD + Constants.RED + "INVALID INPUT. Not a valid symbolic representation for literal coefficient. Try again. " + Constants.RESET + "\n-> ");
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                System.out.println(Constants.IOEXCEPTION_ERROR_MESSAGE);
             }
         }
     }
@@ -394,7 +409,7 @@ public class PolynomialEvaluator {
             try {
                 return Double.parseDouble(reader.readLine());
             } catch (IOException e) {
-                throw new RuntimeException();
+                System.out.println(Constants.IOEXCEPTION_ERROR_MESSAGE);
             } catch (NumberFormatException e ) {
                 System.out.print(Constants.RED + Constants.BOLD + "INVALID INPUT. Must be a numeric Try again. " + Constants.RESET + "\n-> ");
             }
@@ -427,19 +442,6 @@ public class PolynomialEvaluator {
         return choice;
     }
 
-    // Helper method
-    private boolean leadingTermIsNegative(int currentTermIndex, String formattedPolynomialString) {
-        return currentTermIndex == 0 && formattedPolynomialString.charAt(0) == '-';
-    }
-
-    // Helper method for the two-pointer to avoid having 20+lines of code in a method
-    private boolean notReadingATerm(int currentTermIndex, int currentTermCharIndex, String formattedPolynomialString) {
-        if (leadingTermIsNegative(currentTermIndex, formattedPolynomialString) && currentTermCharIndex == 0) // Ignore the sign of the leading term if negative
-            return true;
-        return currentTermCharIndex < formattedPolynomialString.length() &&
-                (formattedPolynomialString.charAt(currentTermCharIndex) != '+' &&
-                        formattedPolynomialString.charAt(currentTermCharIndex) != '-');
-    }
 
     // Method to get the exponent part given an array of a literal part
     // the first element should be the literal
@@ -456,13 +458,13 @@ public class PolynomialEvaluator {
         return Integer.parseInt(coefficientPart);
     }
 
-    // Method to check if the literal part (i.e x^3 or a) has an exponent
+    // Method to check if the literal part (i.e., x^3 or a) has an exponent
     private boolean hasExponent(String literalPart) {
         return literalPart.contains(Constants.EXPONENT_SYMBOL);
     }
 
-    // Pre condition : coefficient is either one or negative 1 "-a" or "a"
-    private boolean coefficientIsNegativeOne(String coefficient) {
+    // Pre-condition: coefficient is either one or negative 1 "-a" or "a"
+    private boolean isCoefficientNegativeOne(String coefficient) {
         return coefficient.equals(Constants.NEGATIVE_SIGN);
     }
 
@@ -472,7 +474,7 @@ public class PolynomialEvaluator {
     }
 
     // method to check if there are more than one literal in the given String
-    // literalPart = i.e. x^3
+    // literalPart = i.e., x^3
     private boolean literalIsMoreThanOne(String literalPart) {
         String[] parts = splitString(literalPart, "\\" + Constants.EXPONENT_SYMBOL);
         return parts[0].length() != 1;
@@ -594,9 +596,10 @@ public class PolynomialEvaluator {
         public static final String ADDITION_SIGN = "+";
 
         // Error Message
-        public static final String IOEXCEPTION_ERROR_MESSAGE =
-                RED + BOLD + "An error occurred while reading input. Please try again." + RESET;
-        public static final String MULTI_LITERAL_ERROR_MESSAGE = Constants.BOLD + Constants.RED + "\nFAILED. This program doesn't support multi-literals. Try again. \n" + Constants.RESET;
+        public static final String IOEXCEPTION_ERROR_MESSAGE = RED + BOLD + "An error occurred while reading input. Please try again." + RESET;
+        public static final String MULTI_LITERAL_ERROR_MESSAGE = BOLD + RED + "\nFAILED. This program doesn't support multi-literals. Try again. \n" + RESET;
+        public static final String FIRST_POLYNOMIAL_CONSTRUCTION_MESSAGE = BOLD + "\nConstructing FIRST Polynomial... " + RESET;
+        public static final String SECOND_POLYNOMIAL_CONSTRUCTION_MESSAGE = BOLD + "\nConstructing SECOND Polynomial... " + RESET;
     }
 
 }

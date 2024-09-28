@@ -1,4 +1,4 @@
-package LogsPackage;
+package midterms.LogsPackage;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;

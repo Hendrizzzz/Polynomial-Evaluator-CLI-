@@ -1,4 +1,4 @@
-package LogsPackage;
+package midterms.LogsPackage;
 
 import java.io.*;
 import java.text.ParseException;
@@ -8,7 +8,7 @@ import java.util.Date;
 
 
 /**
- * The Logger saves the logs from the PolynomialEvaluator class' data.
+ * The Logger saves the logs from the midterms.PolynomialEvaluator class' data.
  */
 public class Logger {
     private static final ArrayList<Log> logs = new ArrayList<Log>();
@@ -40,24 +40,21 @@ public class Logger {
      * Each log entry consists of a date followed by the log content.
      */
     public static void ReadData() {
-        try (BufferedReader reader = new BufferedReader(new FileReader("src/LogsPackage/Logs.txt"))) {
+        try (BufferedReader reader = new BufferedReader(new FileReader("src/main/java/midterms/LogsPackage/Logs.txt"))) {
             String line;
             int lineCount = 1;
             StringBuilder logsList = new StringBuilder();
             Date date = null;
 
             while ((line = reader.readLine()) != null) {
+                // Parse date if line is the one containing the date (1st, 11th, 21st, etc.)
                 if (lineCount % 10 == 1) {
                     SimpleDateFormat dateFormat = new SimpleDateFormat("MMMM dd, yyyy hh:mm a");
                     date = dateFormat.parse(line);
                 }
-                else if (lineCount % 10 == 0){
-                    logsList.append(line).append("\n");
-                    logs.add(new Log(logsList.toString(), date));
-                    logsList.setLength(0); // clear the stringBuilder
-                }
-                else
-                    logsList.append(line).append("\n");
+
+                // Append logs or store the log entry
+                retrieveLogs(logsList, lineCount, date, line);
                 lineCount++;
             }
         } catch (IOException | ParseException e) {
@@ -66,12 +63,22 @@ public class Logger {
         logCountUponStartingProgram = logs.size();
     }
 
+    private static void retrieveLogs(StringBuilder logsList, int lineCount, Date date, String line) throws ParseException {
+        if (lineCount % 10 == 0){
+            logsList.append(line).append("\n");
+            logs.add(new Log(logsList.toString(), date));
+            logsList.setLength(0); // clear the stringBuilder
+        }
+        else
+            logsList.append(line).append("\n");
+    }
+
 
     /**
      * Appends and Saves any new log entries to the specified file.
      */
     public static void saveData() {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter("src/LogsPackage/Logs.txt", true))) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("src/main/java/midterms/LogsPackage/Logs.txt", true))) {
             for (int i = logCountUponStartingProgram; i < logs.size(); i++) {
                 writer.write(logs.get(i).toString());
                 writer.newLine();
