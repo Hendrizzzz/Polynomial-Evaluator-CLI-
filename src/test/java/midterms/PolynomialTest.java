@@ -9,7 +9,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class PolynomialTest {
 
-
     private ArrayList<Term> terms = new ArrayList<>();
 
     @BeforeEach
