@@ -50,9 +50,9 @@ class PolynomialTest {
         Polynomial polynomial = new Polynomial(terms);
         Polynomial polynomial1 = new Polynomial(terms);
 
-        Polynomial quotient = polynomial.divideBy(polynomial1);
+        PolynomialDivisionResult quotient = polynomial.divideBy(polynomial1);
 
-        assertEquals("1", quotient.toString());
+        assertEquals("Result: 1", quotient.toString());
     }
 
 

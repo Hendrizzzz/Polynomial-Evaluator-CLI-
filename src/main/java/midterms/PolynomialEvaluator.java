@@ -141,10 +141,10 @@ public class PolynomialEvaluator {
      */
     private Polynomial getResult(Polynomial polynomial1, Polynomial polynomial2, String operation) {
         return switch (operation) {
-            case "ADDITION" -> polynomial1.addTo(polynomial2);
-            case "SUBTRACTION" -> polynomial1.decreaseBy(polynomial2);
-            case "MULTIPLICATION" -> polynomial1.multiplyBy(polynomial2);
-            default -> polynomial1.divideBy(polynomial2);
+            case "ADDITION"         -> polynomial1.addTo(polynomial2);
+            case "SUBTRACTION"      -> polynomial1.decreaseBy(polynomial2);
+            case "MULTIPLICATION"   -> polynomial1.multiplyBy(polynomial2);
+            default                 -> polynomial1.divideBy(polynomial2);
         };
     }
 
@@ -205,18 +205,20 @@ public class PolynomialEvaluator {
         System.out.print("What is the literal coefficient (e.g., x)? ");
         char literal = readLiteral(reader);
 
-        Polynomial polynomial = new Polynomial();
+        ArrayList<Term> terms = new ArrayList<>();
         for (int i = 0; i < termCount; i++)
-            addNewTerm(polynomial, literal, reader, i);
+            addNewTerm(terms, literal, reader, i);
 
+        Polynomial polynomial = new Polynomial(terms);
         System.out.println(Constants.GREEN + Constants.BOLD + "Polynomial constructed successfully: " + polynomial + Constants.RESET);
         return polynomial;
     }
 
-    private void addNewTerm(Polynomial polynomial, char literal, BufferedReader reader, int i) {
+
+    private void addNewTerm(ArrayList<Term> terms, char literal, BufferedReader reader, int i) {
         System.out.println(Constants.BOLD + "Constructing Term " + (i + 1) + "..." + Constants.RESET);
         Term term = constructTermGivenLiteral(literal, reader);
-        polynomial.addTerm(term);
+        terms.add(term);
     }
 
 
@@ -546,12 +548,12 @@ public class PolynomialEvaluator {
         output.append(Constants.YELLOW).append("Second Polynomial: ").append(Constants.RESET);
         output.append(Constants.BOLD).append("   ").append(polynomial2).append(Constants.RESET).append("\n"); // Ensure Polynomial has a proper toString() method
 
-        output.append(Constants.YELLOW).append("Resulting Polynomial: ").append(Constants.RESET);
-        output.append(Constants.BOLD).append("   ").append(result).append(Constants.RESET).append("\n"); // Ensure Polynomial has a proper toString() method
-
-        if (operation.equals("Division") && result.getRemainder() != null) {
-            output.append(Constants.YELLOW).append("Remainder Polynomial: ").append(Constants.RESET);
-            output.append(Constants.BOLD).append("   ").append(result.getRemainder()).append(Constants.RESET).append("\n"); // Display the remainder
+        if (operation.equals("DIVISION")) {
+            PolynomialDivisionResult polynomialDivisionResult = (PolynomialDivisionResult) result;
+            output.append(Constants.BOLD).append("   ").append(polynomialDivisionResult.toString()).append(Constants.RESET).append("\n");
+        } else {
+            output.append(Constants.YELLOW).append("Resulting Polynomial: ").append(Constants.RESET);
+            output.append(Constants.BOLD).append("   ").append(result).append(Constants.RESET).append("\n"); // Ensure Polynomial has a proper toString() method
         }
 
         output.append(Constants.GREEN).append("╔══════════════════════════════════════╗\n").append(Constants.RESET);
